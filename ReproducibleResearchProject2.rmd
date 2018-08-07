@@ -1,0 +1,100 @@
+---
+Title: "Analysis of the Adverse Health and Economic Impacts of US Storms"
+Author: “Kris Tan”
+date: “07 Aug 2018”
+output: html_document
+---
+
+## 1: Synopsis
+This analysis explores the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database describes the features of major weather events from 1950 to 2011.
+
+The current report investigates on damages to:
+
+1) Population health (injuries and fatalities);
+2) Economical consequences of the affected communities. 
+
+The analysis confirmed that excessive heat and tornado are most harmful to Population health, while flood, drought, and hurricane/typhoon have the greatest economical consequences.
+
+Information on the Data: [Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)
+
+## Data Processing
+
+### Dependencies
+
+The following code is used to load the dependencies required for the data analysis.
+```{r DataLoading}
+#Read and initialize library and data
+library('data.table')
+library('dplyr')
+library('ggplot2')
+library('grid')
+library('gridExtra')
+
+StormData = read.csv("//Users/user/Documents/KrisTan/Coursera/StormData.csv")
+summary(StormData)
+```
+
+
+# Types of Events that are most harmful to Population Health?
+
+The analysis of fatalities and injuries according to different types of weather events.
+
+Plot 1: Death Toll by Event Type
+
+```{r, echo=TRUE}
+StormData %>%
+      select(FATALITIES, EVTYPE) %>%
+      group_by(EVTYPE) %>%
+      summarise(SumFATALITIES = sum(FATALITIES)) %>%
+      top_n(n = 8, wt = SumFATALITIES) %>%
+      ggplot(aes(y = SumFATALITIES, x = reorder(x = EVTYPE, X = SumFATALITIES), fill=EVTYPE))+
+      geom_bar(stat = "identity", show.legend = FALSE) +
+      #geom_text(aes(label=SumFATALITIES), size = 4, hjust = 0.5, vjust = -0.1) +
+      xlab(label = "") +
+      ylab(label = "Death Toll") +
+      coord_flip() +
+      theme_light()
+```
+
+Plot 2: Injuries by Event type
+
+```{r, echo=TRUE}
+StormData %>%
+      select(INJURIES, EVTYPE) %>%
+      group_by(EVTYPE) %>%
+      summarise(SumINJURIES = sum(INJURIES)) %>%
+      top_n(n = 8, wt = SumINJURIES) %>%
+      ggplot(aes(y = SumINJURIES, x = reorder(x = EVTYPE, X = SumINJURIES), fill=EVTYPE))+
+      geom_bar(stat = "identity", show.legend = FALSE) +
+      #geom_text(aes(label=SumINJURIES), size = 4, hjust = 0.5, vjust = -0.1) +
+      xlab(label = "") +
+      ylab(label = "Injuries") +
+      coord_flip() +
+      theme_light()
+```
+# Types of events that have the greatest economical consequences?
+
+Plot 3: Property Damage Estimates by Event Type
+
+```{r, echo=TRUE}
+StormData %>%
+      select(PROPDMG, PROPDMGEXP2, EVTYPE) %>%
+      group_by(EVTYPE) %>%
+      mutate(SumPROPDMGEXP = (PROPDMG * PROPDMGEXP2)) %>%
+      summarise(SumPROPDMGEXP2 = sum(SumPROPDMGEXP)) %>%
+      top_n(n = 8, wt = SumPROPDMGEXP2) %>%
+      ggplot(aes(y = SumPROPDMGEXP2, x = reorder(x = EVTYPE, X = SumPROPDMGEXP2), fill=EVTYPE))+
+      geom_bar(stat = "identity", show.legend = FALSE) +
+      #geom_text(aes(label=SumFATALITIES), size = 4, hjust = 0.5, vjust = -0.1) +
+      xlab(label = "") +
+      ylab(label = "Property Damage Estimates") +
+      coord_flip() +
+      theme_light()
+
+```
+# Results
+
+#### According to the analysis:
+1) Tornado is the most harmful to population health.
+2) Flood has the greatest economical consequences. 
+
